@@ -8,7 +8,12 @@
 libc-strftime
 =============
 
-A wrapper library for the glibc strftime function
+A wrapper library for the glibc strftime function.
+
+Why?
+----
+
+There is currently no way in Rust to get translated date and time.
 
 Examples
 --------
