@@ -12,7 +12,7 @@ keywords = ["libc", "strftime", "calendar", "glibc"]
 categories = ["api-bindings"]
 
 [badges]
-travis-ci = { repository = "cecton/libc-strftime" }
+circle-ci = { repository = "cecton/libc-strftime" }
 is-it-maintained-issue-resolution = { repository = "cecton/libc-strftime" }
 is-it-maintained-open-issues = { repository = "cecton/libc-strftime" }
 maintenance = { status = "passively-developed" }
