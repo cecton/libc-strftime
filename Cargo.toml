@@ -2,6 +2,7 @@
 name = "libc-strftime"
 version = "0.1.0"
 authors = ["Cecile Tonglet <cecile.tonglet@cecton.com>"]
+license = "MIT"
 edition = "2018"
 description = "A wrapper library for the glibc strftime function"
 repository = "https://github.com/cecton/libc-strftime"
