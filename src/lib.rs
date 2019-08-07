@@ -16,7 +16,7 @@
 //!
 //! let now = libc_strftime::epoch(); // most likely a u64
 //! let local = libc_strftime::strftime_local("%c", now);
-//! println!("On est: {}", local);
+//! println!("On est: {}", local); // On est: mer 07 aoû 2019 06:19:56 CEST
 //! ```
 
 use std::ffi::CString;

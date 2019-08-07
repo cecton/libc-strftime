@@ -15,7 +15,7 @@ Examples
 
 Format the current date and time in Brussels in French:
 
-```
+```rust
 use std::env;
 
 env::set_var("LC_ALL", "fr_BE.UTF-8");
@@ -26,9 +26,9 @@ libc_strftime::set_locale();
 
 let now = libc_strftime::epoch(); // most likely a u64
 let local = libc_strftime::strftime_local("%c", now);
-println!("On est: {}", local);
+println!("On est: {}", local); // On est: mer 07 aoû 2019 06:19:56 CEST
 ```
 
 Known Issues
 ------------
- *  The translation doesn't seen to work with MUSL.
+ *  The translation doesn't seem to work with MUSL.
