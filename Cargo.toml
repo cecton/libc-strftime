@@ -3,8 +3,19 @@ name = "libc-strftime"
 version = "0.1.0"
 authors = ["Cecile Tonglet <cecile.tonglet@cecton.com>"]
 edition = "2018"
+description = "A wrapper library for the glibc strftime function"
+repository = "https://github.com/cecton/libc-strftime"
+homepage = "https://github.com/cecton/libc-strftime"
+documentation = "https://docs.rs/libc-strftime"
+readme = "README.md"
+keywords = ["libc", "strftime", "calendar", "glibc"]
+categories = ["api-bindings"]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[badges]
+travis-ci = { repository = "cecton/libc-strftime" }
+is-it-maintained-issue-resolution = { repository = "cecton/libc-strftime" }
+is-it-maintained-open-issues = { repository = "cecton/libc-strftime" }
+maintenance = { status = "passively-developed" }
 
 [dependencies]
 libc = "0.2"
