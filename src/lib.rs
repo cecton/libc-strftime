@@ -1,3 +1,24 @@
+//! A wrapper library for the glibc strftime function
+//!
+//! Examples
+//! ========
+//!
+//! Format the current date and time in Brussels in French:
+//!
+//! ```
+//! use std::env;
+//!
+//! env::set_var("LC_ALL", "fr_BE.UTF-8");
+//! env::set_var("TZ", "Europe/Brussels");
+//!
+//! libc_strftime::tzset();
+//! libc_strftime::set_locale();
+//!
+//! let now = libc_strftime::epoch(); // most likely a u64
+//! let local = libc_strftime::strftime_local("%c", now);
+//! println!("On est: {}", local);
+//! ```
+
 use std::ffi::CString;
 
 mod c {
