@@ -136,7 +136,7 @@ mod tests {
         #[cfg(unix)]
         assert_eq!(local, "Wed 07 Aug 2019 06:19:56 AM CEST");
         #[cfg(windows)]
-        assert_eq!(gmt, "8/7/2019 4:19:56 AM");
+        assert_eq!(local, "8/7/2019 4:19:56 AM");
 
         #[cfg(unix)]
         {
