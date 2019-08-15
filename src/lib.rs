@@ -20,10 +20,14 @@
 //! ```
 
 use std::ffi::CString;
+use std::mem;
 
 mod c {
     extern "C" {
+        #[cfg(unix)]
         pub(crate) fn tzset();
+        #[cfg(windows)]
+        pub(crate) fn _tzset();
         pub(crate) fn strftime(
             s: *mut libc::c_char,
             max: libc::size_t,
@@ -31,47 +35,39 @@ mod c {
             tm: *const libc::tm,
         ) -> usize;
         pub(crate) fn time(tloc: *const libc::time_t) -> libc::time_t;
+        #[cfg(unix)]
         pub(crate) fn localtime_r(t: *const libc::time_t, tm: *mut libc::tm);
+        #[cfg(windows)]
+        pub(crate) fn _localtime64_s(tm: *mut libc::tm, t: *const libc::time_t);
+        #[cfg(unix)]
         pub(crate) fn gmtime_r(t: *const libc::time_t, tm: *mut libc::tm);
+        #[cfg(windows)]
+        pub(crate) fn _gmtime64_s(tm: *mut libc::tm, t: *const libc::time_t);
     }
 }
 
 /// Get a tm struct in local timezone
 pub fn get_local_tm_from_epoch(epoch: libc::time_t) -> libc::tm {
-    let mut now = libc::tm {
-        tm_sec: 0,
-        tm_min: 0,
-        tm_hour: 0,
-        tm_mday: 0,
-        tm_mon: 0,
-        tm_year: 0,
-        tm_wday: 0,
-        tm_yday: 0,
-        tm_isdst: 0,
-        tm_gmtoff: 0,
-        tm_zone: std::ptr::null(),
-    };
-    unsafe { c::localtime_r(&epoch, &mut now) };
-    now
+    unsafe {
+        let mut now: libc::tm = mem::zeroed();
+        #[cfg(unix)]
+        c::localtime_r(&epoch, &mut now);
+        #[cfg(windows)]
+        c::_localtime64_s(&mut now, &epoch);
+        now
+    }
 }
 
 /// Get a tm struct in GMT
 pub fn get_gmt_tm_from_epoch(epoch: libc::time_t) -> libc::tm {
-    let mut now = libc::tm {
-        tm_sec: 0,
-        tm_min: 0,
-        tm_hour: 0,
-        tm_mday: 0,
-        tm_mon: 0,
-        tm_year: 0,
-        tm_wday: 0,
-        tm_yday: 0,
-        tm_isdst: 0,
-        tm_gmtoff: 0,
-        tm_zone: std::ptr::null(),
-    };
-    unsafe { c::gmtime_r(&epoch, &mut now) };
-    now
+    unsafe {
+        let mut now: libc::tm = mem::zeroed();
+        #[cfg(unix)]
+        c::gmtime_r(&epoch, &mut now);
+        #[cfg(windows)]
+        c::_gmtime64_s(&mut now, &epoch);
+        now
+    }
 }
 
 /// Call strftime() using a tm struct provided in input
@@ -104,7 +100,10 @@ pub fn set_locale() {
 /// Call tzset() which will initialize the local timezone based on the environment variables
 pub fn tzset() {
     unsafe {
+        #[cfg(unix)]
         c::tzset();
+        #[cfg(windows)]
+        c::_tzset();
     }
 }
 
