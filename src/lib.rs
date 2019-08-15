@@ -133,7 +133,10 @@ mod tests {
         assert_eq!(gmt, "Wed 07 Aug 2019 04:19:56 AM GMT");
         #[cfg(windows)]
         assert_eq!(gmt, "8/7/2019 4:19:56 AM");
+        #[cfg(unix)]
         assert_eq!(local, "Wed 07 Aug 2019 06:19:56 AM CEST");
+        #[cfg(windows)]
+        assert_eq!(gmt, "8/7/2019 4:19:56 AM");
 
         env::set_var("LC_ALL", "fr_BE.UTF-8");
         env::set_var("TZ", "Europe/Brussels");
