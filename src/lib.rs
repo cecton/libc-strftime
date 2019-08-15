@@ -138,15 +138,18 @@ mod tests {
         #[cfg(windows)]
         assert_eq!(gmt, "8/7/2019 4:19:56 AM");
 
-        env::set_var("LC_ALL", "fr_BE.UTF-8");
-        env::set_var("TZ", "Europe/Brussels");
+        #[cfg(unix)]
+        {
+            env::set_var("LC_ALL", "fr_BE.UTF-8");
+            env::set_var("TZ", "Europe/Brussels");
 
-        tzset();
-        set_locale();
+            tzset();
+            set_locale();
 
-        let gmt = strftime_gmt("%c", EPOCH);
-        let local = strftime_local("%c", EPOCH);
-        assert_eq!(gmt, "mer 07 aoû 2019 04:19:56 GMT");
-        assert_eq!(local, "mer 07 aoû 2019 06:19:56 CEST");
+            let gmt = strftime_gmt("%c", EPOCH);
+            let local = strftime_local("%c", EPOCH);
+            assert_eq!(gmt, "mer 07 aoû 2019 04:19:56 GMT");
+            assert_eq!(local, "mer 07 aoû 2019 06:19:56 CEST");
+        }
     }
 }
