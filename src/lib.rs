@@ -135,9 +135,11 @@ mod tests {
         assert_eq!(gmt, "Wed Aug  7 04:19:56 2019");
         #[cfg(target_os = "windows")]
         assert_eq!(gmt, "8/7/2019 4:19:56 AM");
-        #[cfg(unix)]
+        #[cfg(target_os = "linux")]
         assert_eq!(local, "Wed 07 Aug 2019 06:19:56 AM CEST");
-        #[cfg(windows)]
+        #[cfg(target_os = "macos")]
+        assert_eq!(local, "Wed Aug  7 06:19:56 2019");
+        #[cfg(target_os = "windows")]
         assert_eq!(local, "8/7/2019 4:19:56 AM");
 
         #[cfg(unix)]
