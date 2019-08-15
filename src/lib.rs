@@ -152,8 +152,14 @@ mod tests {
 
             let gmt = strftime_gmt("%c", EPOCH);
             let local = strftime_local("%c", EPOCH);
+            #[cfg(target_os = "linux")]
             assert_eq!(gmt, "mer 07 aoû 2019 04:19:56 GMT");
+            #[cfg(target_os = "macos")]
+            assert_eq!(gmt, "Mer  7 aoû 04:19:56 2019");
+            #[cfg(target_os = "linux")]
             assert_eq!(local, "mer 07 aoû 2019 06:19:56 CEST");
+            #[cfg(target_os = "macos")]
+            assert_eq!(local, "Mer  7 aoû 06:19:56 2019");
         }
     }
 }
