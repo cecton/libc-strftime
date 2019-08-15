@@ -129,7 +129,10 @@ mod tests {
 
         let gmt = strftime_gmt("%c", EPOCH);
         let local = strftime_local("%c", EPOCH);
+        #[cfg(unix)]
         assert_eq!(gmt, "Wed 07 Aug 2019 04:19:56 AM GMT");
+        #[cfg(windows)]
+        assert_eq!(gmt, "8/7/2019 4:19:56 AM");
         assert_eq!(local, "Wed 07 Aug 2019 06:19:56 AM CEST");
 
         env::set_var("LC_ALL", "fr_BE.UTF-8");
