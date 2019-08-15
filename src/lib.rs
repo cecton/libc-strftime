@@ -98,7 +98,7 @@ pub fn set_locale() {
 }
 
 /// Call tzset() which will initialize the local timezone based on the environment variables
-pub fn tzset() {
+pub fn tz_set() {
     unsafe {
         #[cfg(unix)]
         c::tzset();
@@ -115,17 +115,18 @@ pub fn epoch() -> libc::time_t {
 #[cfg(test)]
 mod tests {
     use crate::*;
-    use std::env;
 
     const EPOCH: libc::time_t = 1_565_151_596;
 
     #[test]
     #[cfg(unix)]
     fn format_time_and_date_in_gmt_and_cest() {
+        use std::env;
+
         env::set_var("LC_ALL", "en_US.UTF-8");
         env::set_var("TZ", "Europe/Brussels");
 
-        tzset();
+        tz_set();
         set_locale();
 
         let gmt = strftime_gmt("%c", EPOCH);
@@ -142,7 +143,7 @@ mod tests {
         env::set_var("LC_ALL", "fr_BE.UTF-8");
         env::set_var("TZ", "Europe/Brussels");
 
-        tzset();
+        tz_set();
         set_locale();
 
         let gmt = strftime_gmt("%c", EPOCH);
@@ -164,7 +165,7 @@ mod tests {
     #[test]
     #[cfg(windows)]
     fn format_time_and_date_on_windows() {
-        tzset();
+        tz_set();
         set_locale();
 
         let gmt = strftime_gmt("%c", EPOCH);
