@@ -11,7 +11,7 @@
 //! env::set_var("LC_ALL", "fr_BE.UTF-8");
 //! env::set_var("TZ", "Europe/Brussels");
 //!
-//! libc_strftime::tzset();
+//! libc_strftime::tz_set();
 //! libc_strftime::set_locale();
 //!
 //! let now = libc_strftime::epoch(); // most likely a u64
