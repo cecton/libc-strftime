@@ -129,8 +129,10 @@ mod tests {
 
         let gmt = strftime_gmt("%c", EPOCH);
         let local = strftime_local("%c", EPOCH);
-        #[cfg(unix)]
+        #[cfg(linux)]
         assert_eq!(gmt, "Wed 07 Aug 2019 04:19:56 AM GMT");
+        #[cfg(macos)]
+        assert_eq!(gmt, "Wed Aug  7 04:19:56 2019");
         #[cfg(windows)]
         assert_eq!(gmt, "8/7/2019 4:19:56 AM");
         #[cfg(unix)]
