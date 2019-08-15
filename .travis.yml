@@ -10,8 +10,8 @@ rust:
   - stable
 
 # NOTE: disable Travis' cache for now because it makes the Windows build fail
-#cache:
-#  directories:
+cache:
+  directories:
 
 before_script:
   - rustup component add rustfmt-preview clippy
