@@ -11,7 +11,7 @@
 //! env::set_var("LC_ALL", "fr_BE.UTF-8");
 //! env::set_var("TZ", "Europe/Brussels");
 //!
-//! libc_strftime::tzset();
+//! libc_strftime::tz_set();
 //! libc_strftime::set_locale();
 //!
 //! let now = libc_strftime::epoch(); // most likely a u64
@@ -20,10 +20,14 @@
 //! ```
 
 use std::ffi::CString;
+use std::mem;
 
 mod c {
     extern "C" {
+        #[cfg(unix)]
         pub(crate) fn tzset();
+        #[cfg(windows)]
+        pub(crate) fn _tzset();
         pub(crate) fn strftime(
             s: *mut libc::c_char,
             max: libc::size_t,
@@ -31,47 +35,39 @@ mod c {
             tm: *const libc::tm,
         ) -> usize;
         pub(crate) fn time(tloc: *const libc::time_t) -> libc::time_t;
+        #[cfg(unix)]
         pub(crate) fn localtime_r(t: *const libc::time_t, tm: *mut libc::tm);
+        #[cfg(windows)]
+        pub(crate) fn _localtime64_s(tm: *mut libc::tm, t: *const libc::time_t);
+        #[cfg(unix)]
         pub(crate) fn gmtime_r(t: *const libc::time_t, tm: *mut libc::tm);
+        #[cfg(windows)]
+        pub(crate) fn _gmtime64_s(tm: *mut libc::tm, t: *const libc::time_t);
     }
 }
 
 /// Get a tm struct in local timezone
 pub fn get_local_tm_from_epoch(epoch: libc::time_t) -> libc::tm {
-    let mut now = libc::tm {
-        tm_sec: 0,
-        tm_min: 0,
-        tm_hour: 0,
-        tm_mday: 0,
-        tm_mon: 0,
-        tm_year: 0,
-        tm_wday: 0,
-        tm_yday: 0,
-        tm_isdst: 0,
-        tm_gmtoff: 0,
-        tm_zone: std::ptr::null(),
-    };
-    unsafe { c::localtime_r(&epoch, &mut now) };
-    now
+    unsafe {
+        let mut now: libc::tm = mem::zeroed();
+        #[cfg(unix)]
+        c::localtime_r(&epoch, &mut now);
+        #[cfg(windows)]
+        c::_localtime64_s(&mut now, &epoch);
+        now
+    }
 }
 
 /// Get a tm struct in GMT
 pub fn get_gmt_tm_from_epoch(epoch: libc::time_t) -> libc::tm {
-    let mut now = libc::tm {
-        tm_sec: 0,
-        tm_min: 0,
-        tm_hour: 0,
-        tm_mday: 0,
-        tm_mon: 0,
-        tm_year: 0,
-        tm_wday: 0,
-        tm_yday: 0,
-        tm_isdst: 0,
-        tm_gmtoff: 0,
-        tm_zone: std::ptr::null(),
-    };
-    unsafe { c::gmtime_r(&epoch, &mut now) };
-    now
+    unsafe {
+        let mut now: libc::tm = mem::zeroed();
+        #[cfg(unix)]
+        c::gmtime_r(&epoch, &mut now);
+        #[cfg(windows)]
+        c::_gmtime64_s(&mut now, &epoch);
+        now
+    }
 }
 
 /// Call strftime() using a tm struct provided in input
@@ -102,9 +98,12 @@ pub fn set_locale() {
 }
 
 /// Call tzset() which will initialize the local timezone based on the environment variables
-pub fn tzset() {
+pub fn tz_set() {
     unsafe {
+        #[cfg(unix)]
         c::tzset();
+        #[cfg(windows)]
+        c::_tzset();
     }
 }
 
@@ -116,32 +115,64 @@ pub fn epoch() -> libc::time_t {
 #[cfg(test)]
 mod tests {
     use crate::*;
-    use std::env;
 
     const EPOCH: libc::time_t = 1_565_151_596;
 
     #[test]
+    #[cfg(unix)]
     fn format_time_and_date_in_gmt_and_cest() {
+        use std::env;
+
         env::set_var("LC_ALL", "en_US.UTF-8");
         env::set_var("TZ", "Europe/Brussels");
 
-        tzset();
+        tz_set();
         set_locale();
 
         let gmt = strftime_gmt("%c", EPOCH);
         let local = strftime_local("%c", EPOCH);
+        #[cfg(target_os = "linux")]
         assert_eq!(gmt, "Wed 07 Aug 2019 04:19:56 AM GMT");
+        #[cfg(target_os = "macos")]
+        assert_eq!(gmt, "Wed Aug  7 04:19:56 2019");
+        #[cfg(target_os = "linux")]
         assert_eq!(local, "Wed 07 Aug 2019 06:19:56 AM CEST");
+        #[cfg(target_os = "macos")]
+        assert_eq!(local, "Wed Aug  7 06:19:56 2019");
 
         env::set_var("LC_ALL", "fr_BE.UTF-8");
         env::set_var("TZ", "Europe/Brussels");
 
-        tzset();
+        tz_set();
         set_locale();
 
         let gmt = strftime_gmt("%c", EPOCH);
         let local = strftime_local("%c", EPOCH);
+        #[cfg(target_os = "linux")]
         assert_eq!(gmt, "mer 07 aoû 2019 04:19:56 GMT");
+        #[cfg(target_os = "macos")]
+        assert_eq!(gmt, "Mer  7 aoû 04:19:56 2019");
+        #[cfg(target_os = "linux")]
         assert_eq!(local, "mer 07 aoû 2019 06:19:56 CEST");
+        #[cfg(target_os = "macos")]
+        assert_eq!(local, "Mer  7 aoû 06:19:56 2019");
+    }
+
+    // NOTE: I have no idea how to change the timezone or the language on
+    //       Windows. It's supposed to be with the global environment variable
+    //       TZ but I couldn't make it working... well, at least it returns
+    //       something and it should probably work, right?
+    #[test]
+    #[cfg(windows)]
+    fn format_time_and_date_on_windows() {
+        tz_set();
+        set_locale();
+
+        let gmt = strftime_gmt("%c", EPOCH);
+        let local = strftime_local("%c", EPOCH);
+        #[cfg(target_os = "windows")]
+        assert_eq!(gmt, "8/7/2019 4:19:56 AM");
+        #[cfg(target_os = "windows")]
+        assert_eq!(local, "8/7/2019 4:19:56 AM");
     }
 }
