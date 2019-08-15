@@ -120,6 +120,7 @@ mod tests {
     const EPOCH: libc::time_t = 1_565_151_596;
 
     #[test]
+    #[cfg(unix)]
     fn format_time_and_date_in_gmt_and_cest() {
         env::set_var("LC_ALL", "en_US.UTF-8");
         env::set_var("TZ", "Europe/Brussels");
