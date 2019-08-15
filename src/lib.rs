@@ -133,33 +133,44 @@ mod tests {
         assert_eq!(gmt, "Wed 07 Aug 2019 04:19:56 AM GMT");
         #[cfg(target_os = "macos")]
         assert_eq!(gmt, "Wed Aug  7 04:19:56 2019");
-        #[cfg(target_os = "windows")]
-        assert_eq!(gmt, "8/7/2019 4:19:56 AM");
         #[cfg(target_os = "linux")]
         assert_eq!(local, "Wed 07 Aug 2019 06:19:56 AM CEST");
         #[cfg(target_os = "macos")]
         assert_eq!(local, "Wed Aug  7 06:19:56 2019");
+
+        env::set_var("LC_ALL", "fr_BE.UTF-8");
+        env::set_var("TZ", "Europe/Brussels");
+
+        tzset();
+        set_locale();
+
+        let gmt = strftime_gmt("%c", EPOCH);
+        let local = strftime_local("%c", EPOCH);
+        #[cfg(target_os = "linux")]
+        assert_eq!(gmt, "mer 07 aoû 2019 04:19:56 GMT");
+        #[cfg(target_os = "macos")]
+        assert_eq!(gmt, "Mer  7 aoû 04:19:56 2019");
+        #[cfg(target_os = "linux")]
+        assert_eq!(local, "mer 07 aoû 2019 06:19:56 CEST");
+        #[cfg(target_os = "macos")]
+        assert_eq!(local, "Mer  7 aoû 06:19:56 2019");
+    }
+
+    // NOTE: I have no idea how to change the timezone or the language on
+    //       Windows. It's supposed to be with the global environment variable
+    //       TZ but I couldn't make it working... well, at least it returns
+    //       something and it should probably work, right?
+    #[test]
+    #[cfg(windows)]
+    fn format_time_and_date_on_windows() {
+        tzset();
+        set_locale();
+
+        let gmt = strftime_gmt("%c", EPOCH);
+        let local = strftime_local("%c", EPOCH);
+        #[cfg(target_os = "windows")]
+        assert_eq!(gmt, "8/7/2019 4:19:56 AM");
         #[cfg(target_os = "windows")]
         assert_eq!(local, "8/7/2019 4:19:56 AM");
-
-        #[cfg(unix)]
-        {
-            env::set_var("LC_ALL", "fr_BE.UTF-8");
-            env::set_var("TZ", "Europe/Brussels");
-
-            tzset();
-            set_locale();
-
-            let gmt = strftime_gmt("%c", EPOCH);
-            let local = strftime_local("%c", EPOCH);
-            #[cfg(target_os = "linux")]
-            assert_eq!(gmt, "mer 07 aoû 2019 04:19:56 GMT");
-            #[cfg(target_os = "macos")]
-            assert_eq!(gmt, "Mer  7 aoû 04:19:56 2019");
-            #[cfg(target_os = "linux")]
-            assert_eq!(local, "mer 07 aoû 2019 06:19:56 CEST");
-            #[cfg(target_os = "macos")]
-            assert_eq!(local, "Mer  7 aoû 06:19:56 2019");
-        }
     }
 }
